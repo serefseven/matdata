@@ -7,7 +7,7 @@ node {
 
     stage ('Git Checkout') {
 
-      git branch: 'main', credentialsId: '74ef8903-9236-47e4-b8ad-79f7e24157ed', url: 'https://github.com/rynSoft/productionApi.git'
+      git branch: 'main', credentialsId: '74ef8903-9236-47e4-b8ad-79f7e24157ed', url: 'https://github.com/serefseven/matdata.git'
 
     }
 
