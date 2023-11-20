@@ -6,7 +6,7 @@ spring:
     oauth2:
       resource-server:
         opaquetoken:
-          introspection-uri: http://mat-data.com/oauth2/introspect
+          introspection-uri: http://api.mat-data.com/oauth2/introspect
           #          introspection-uri: http://localhost:8080/security-service/api/oauth2/introspect
           client-id: matdata-client
           client-secret: matdata-secret
