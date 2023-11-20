@@ -1,0 +1,38 @@
+server:
+  port: 8080
+
+spring:
+  security:
+    oauth2:
+      resource-server:
+        opaquetoken:
+          introspection-uri: http://mat-data.com/oauth2/introspect
+          #          introspection-uri: http://localhost:8080/security-service/api/oauth2/introspect
+          client-id: matdata-client
+          client-secret: matdata-secret
+    filter:
+      order: 2
+  main:
+    allow-bean-definition-overriding: true
+  datasource:
+    url: jdbc:postgresql://172.17.0.1:5433/matdata
+    username: postgres
+    password: oXit23-24
+  cloud:
+    config:
+      label: latest
+      enabled: false
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lowerCaseServiceId: true
+
+security-service:
+  properties:
+    login-by-email: true # false is username
+
+## Mat-data definition
+mat-data:
+  application:
+    url: http://apps.mat-data.com

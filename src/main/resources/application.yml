@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: matdata-service
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: '*'
+
+tenant:
+  enabled: false
