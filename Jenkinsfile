@@ -24,7 +24,7 @@ node {
     }
 
     stage('Deploy') {
-        sh('docker run -d --restart unless-stopped -e ASPNETCORE_ENVIRONMENT=${ENVIRONMENT} -p 8901:8081 --name matdata-be matdata-be')
+        sh('docker run -d --restart unless-stopped -p 8901:8080 --name matdata-be matdata-be')
     }
 
 }
