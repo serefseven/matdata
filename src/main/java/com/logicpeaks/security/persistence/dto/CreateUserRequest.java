@@ -2,6 +2,7 @@ package com.logicpeaks.security.persistence.dto;
 
 import com.logicpeaks.security.enums.UserPasswordSettingTypes;
 import com.logicpeaks.security.enums.UserStatus;
+import com.logicpeaks.security.enums.UserType;
 import jakarta.validation.constraints.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -27,5 +28,6 @@ public class CreateUserRequest {
     private UserPasswordSettingTypes passwordSettingType;
     private UserStatus status;
     private Long userGroupId;
+    private UserType type;
 
 }

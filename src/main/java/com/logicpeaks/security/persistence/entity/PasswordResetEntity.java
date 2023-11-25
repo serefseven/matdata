@@ -23,6 +23,8 @@ public class PasswordResetEntity extends BaseEntity{
     private String token;
     @Column(name = "expire_date")
     private Date expireDate;
+    @Column(name = "used")
+    private Boolean used;
     @ManyToOne
     @JoinColumn(name = "user_id", nullable=false)
     private UserEntity user;

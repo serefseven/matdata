@@ -1,9 +1,7 @@
 package com.logicpeaks.security.enums;
-
 import com.fasterxml.jackson.annotation.JsonValue;
-
-public enum UserStatus {
-    ACTIVE, DEACTIVE;
+public enum UserType {
+    CLIENT,ADMIN;
 
     @JsonValue
     public int toValue() {

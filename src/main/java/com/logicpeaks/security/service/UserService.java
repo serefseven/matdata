@@ -10,10 +10,6 @@ import com.logicpeaks.security.persistence.entity.RoleEntity;
 import com.logicpeaks.security.persistence.entity.UserEntity;
 import com.logicpeaks.security.persistence.repository.RoleRepository;
 import com.logicpeaks.security.persistence.repository.UserRepository;
-import jakarta.validation.Validation;
-import jakarta.validation.Validator;
-import jakarta.validation.ValidatorFactory;
-import jakarta.validation.constraints.Size;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -28,9 +24,9 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -57,25 +53,22 @@ public class UserService {
             throws UsernameNotFoundException {
         UserEntity userEntity;
 
-        if(loginByEmail){
-            userEntity = userRepository.findByEmailAndStatus(username, UserStatus.ACTIVE);
-            if(!Optional.ofNullable(userEntity).isPresent())
-                throw new UsernameNotFoundException(username);
-            return User
-                    .withUsername(userEntity.getEmail())
-                    .password(userEntity.getPassword())
-                    .authorities("read")
-                    .build();
-        } else {
-            userEntity = userRepository.findByUsernameAndStatus(username, UserStatus.ACTIVE);
-            if(!Optional.ofNullable(userEntity).isPresent())
-                throw new UsernameNotFoundException(username);
-            return User
-                    .withUsername(userEntity.getUsername())
-                    .password(userEntity.getPassword())
-                    .authorities("read")
-                    .build();
-        }
+
+        userEntity = userRepository.findByEmailAndStatus(username, UserStatus.ACTIVE);
+        if (!Optional.ofNullable(userEntity).isPresent())
+            throw new UsernameNotFoundException(username);
+
+        int compare = userEntity.getUserGroup().getEndDate().compareTo(new Date());
+        if(!userEntity.getUserGroup().getActive() || compare == -1)
+            throw new UsernameNotFoundException(username);
+
+
+        return User
+                .withUsername(userEntity.getEmail())
+                .password(userEntity.getPassword())
+                .authorities("read")
+                .build();
+
     }
 
     public List<UserDtoApiResponse> getList(int page,
@@ -83,7 +76,7 @@ public class UserService {
                                             Optional<String> sortDirection,
                                             Optional<String> sortField) {
 
-        Sort sort = Sort.by(Sort.Direction.valueOf(sortDirection.orElse("DESC")),sortField.orElse("id"));
+        Sort sort = Sort.by(Sort.Direction.valueOf(sortDirection.orElse("DESC")), sortField.orElse("id"));
         Pageable pageable = PageRequest.of(page, size, sort);
 
         Page<UserEntity> userList = userRepository.findAll(pageable);
@@ -93,13 +86,13 @@ public class UserService {
     public UserDtoApiResponse getUserById(Long userId) throws DataNotFoundException {
 
         Optional<UserEntity> user = userRepository.findById(userId);
-        if(!user.isPresent()){
+        if (!user.isPresent()) {
             log.error(String.format("User not found"));
             throw new DataNotFoundException("User");
         }
 
         UserDtoApiResponse userDtoApiResponse = modelMapper.map(user.get(), UserDtoApiResponse.class);
-        if(user.get().getUserGroup() != null)
+        if (user.get().getUserGroup() != null)
             userDtoApiResponse.setUserGroupId(user.get().getUserGroup().getId());
         return userDtoApiResponse;
     }
@@ -107,22 +100,22 @@ public class UserService {
     public UserDtoApiResponse create(CreateUserRequest request)
             throws ArgumentNotValidException {
 
-        if(!request.getPassword().equals(request.getConfirmPassword())){
+        if (!request.getPassword().equals(request.getConfirmPassword())) {
             log.warn(String.format("User update unsuccessful, password missmatch error."));
             throw new ArgumentNotValidException("Parola ve parola doğrulama alanları eşleşmiyor.");
         }
 
         Optional<UserEntity> userEntityEmailCheck = userRepository.findByEmail(request.getEmail());
-        if(userEntityEmailCheck.isPresent()){
+        if (userEntityEmailCheck.isPresent()) {
             log.warn(String.format("User create unsuccessful, e-mail already exist."));
             throw new ArgumentNotValidException("E-mail adresi zaten kayıtlı.");
         }
 
-        if(request.getStatus()==null){
+        if (request.getStatus() == null) {
             request.setStatus(UserStatus.ACTIVE);
         }
         UserGroupEntity userGroupEntity = null;
-        if(request.getUserGroupId() != null) {
+        if (request.getUserGroupId() != null) {
             userGroupEntity = userGroupRepository.findById(request.getUserGroupId()).orElse(null);
         }
 
@@ -132,18 +125,18 @@ public class UserService {
         userEntity.setPassword(bCrypt.encode(userEntity.getPassword()));
         userEntity = userRepository.save(userEntity);
 
-        log.info(String.format("User create successful, data : %s",userEntity));
+        log.info(String.format("User create successful, data : %s", userEntity));
         return modelMapper.map(userEntity, UserDtoApiResponse.class);
     }
 
     public UserDtoApiResponse update(UpdateUserRequest request)
-            throws ArgumentNotValidException,DataNotFoundException {
+            throws ArgumentNotValidException, DataNotFoundException {
 
         Optional<UserEntity> userEntityOptional = userRepository.findById(request.getId());
-        UserEntity userEntity = userEntityOptional.orElseThrow(()-> new DataNotFoundException("User"));
+        UserEntity userEntity = userEntityOptional.orElseThrow(() -> new DataNotFoundException("User"));
 
-        if(Optional.ofNullable(request.getPassword()).isPresent()){
-            if(!request.getPassword().equals(request.getConfirmPassword())) {
+        if (Optional.ofNullable(request.getPassword()).isPresent()) {
+            if (!request.getPassword().equals(request.getConfirmPassword())) {
                 log.warn(String.format("User update unsuccessful, password missmatch error."));
                 throw new ArgumentNotValidException("Parola ve parola doğrulama alanları eşleşmiyor.");
             }
@@ -151,44 +144,41 @@ public class UserService {
             userEntity.setPassword(bCrypt.encode(request.getPassword()));
         }
 
-        if(Optional.ofNullable(request.getEmail()).isPresent()){
+        if (Optional.ofNullable(request.getEmail()).isPresent()) {
             Optional<UserEntity> userEntityEmailCheck = userRepository.findByEmail(request.getEmail());
-            if(userEntityEmailCheck.isPresent() && !userEntityEmailCheck.get().getId().equals(request.getId())){
+            if (userEntityEmailCheck.isPresent() && !userEntityEmailCheck.get().getId().equals(request.getId())) {
                 log.warn(String.format("User update unsuccessful, e-mail already exist."));
                 throw new ArgumentNotValidException("E-mail adresi zaten kayıtlı.");
             }
             userEntity.setEmail(request.getEmail());
         }
-        if(Optional.ofNullable(request.getFirstName()).isPresent()){
-            userEntity.setFirstName(request.getFirstName());
-        }
-        if(Optional.ofNullable(request.getLastName()).isPresent()){
-            userEntity.setLastName(request.getLastName());
-        }
-        if(Optional.ofNullable(request.getStatus()).isPresent()){
-            userEntity.setStatus(request.getStatus());
-        }
+
+        userEntity.setFirstName(request.getFirstName());
+        userEntity.setLastName(request.getLastName());
+        userEntity.setStatus(request.getStatus());
+        userEntity.setType(request.getType());
+
 
         UserGroupEntity userGroupEntity = null;
-        if(request.getUserGroupId() != null) {
+        if (request.getUserGroupId() != null) {
             userGroupEntity = userGroupRepository.findById(request.getUserGroupId()).orElse(null);
         }
         userEntity.setUserGroup(userGroupEntity);
         userEntity = userRepository.save(userEntity);
-        log.info(String.format("User update successful, data :  %s",userEntity));
+        log.info(String.format("User update successful, data :  %s", userEntity));
         return modelMapper.map(userEntity, UserDtoApiResponse.class);
     }
 
-    public void delete(Long id){
+    public void delete(Long id) {
         userRepository.deleteById(id);
-        log.info(String.format("User delete successful, id : %s",id));
+        log.info(String.format("User delete successful, id : %s", id));
     }
 
     public List<RoleDtoApiResponse> getRoleList(Long id)
             throws DataNotFoundException {
         Optional<UserEntity> userEntityOptional = userRepository.findById(id);
 
-        if(userEntityOptional.isEmpty()){
+        if (userEntityOptional.isEmpty()) {
             log.error(String.format("User not found"));
             throw new DataNotFoundException("User");
         }
@@ -204,17 +194,17 @@ public class UserService {
         Optional<UserEntity> userEntityOptional = userRepository.findById(request.getUserId());
         Optional<RoleEntity> roleEntityOptional = roleRepository.findById(request.getRoleId());
 
-        if(userEntityOptional.isEmpty()){
+        if (userEntityOptional.isEmpty()) {
             log.error(String.format("User not found"));
             throw new DataNotFoundException("User");
         }
 
-        if(roleEntityOptional.isEmpty()){
+        if (roleEntityOptional.isEmpty()) {
             log.error(String.format("Role not found"));
             throw new DataNotFoundException("Role");
         }
 
-        if(Optional.ofNullable(userEntityOptional.get().getRoles()).isEmpty()){
+        if (Optional.ofNullable(userEntityOptional.get().getRoles()).isEmpty()) {
             userEntityOptional.get().setRoles(new HashSet<>());
         }
 
@@ -226,17 +216,17 @@ public class UserService {
             throws DataNotFoundException {
         Optional<UserEntity> userEntityOptional = userRepository.findById(userId);
 
-        if(userEntityOptional.isEmpty()){
+        if (userEntityOptional.isEmpty()) {
             log.error(String.format("User not found"));
             throw new DataNotFoundException("User");
         }
 
-        if(Optional.ofNullable(userEntityOptional.get().getRoles()).isEmpty()){
+        if (Optional.ofNullable(userEntityOptional.get().getRoles()).isEmpty()) {
             userEntityOptional.get().setRoles(new HashSet<>());
         }
 
         Boolean roleExist = userEntityOptional.get().getRoles().stream().anyMatch(r -> r.getId().equals(roleId));
-        if(!roleExist){
+        if (!roleExist) {
             log.error(String.format("Role not found"));
             throw new DataNotFoundException("Role");
         }

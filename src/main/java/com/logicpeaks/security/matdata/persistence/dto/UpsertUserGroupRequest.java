@@ -20,7 +20,6 @@ public class UpsertUserGroupRequest {
     @NotBlank(message = "Name must not be blank.")
     private String name;
 
-    @Future(message = "End Date must not be future date.")
     @JsonFormat
             (shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX")
     private Date endDate;

@@ -1,6 +1,7 @@
 package com.logicpeaks.security.persistence.entity;
 
 import com.logicpeaks.security.enums.UserStatus;
+import com.logicpeaks.security.enums.UserType;
 import com.logicpeaks.security.matdata.persistence.entity.UserGroupEntity;
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -41,6 +42,7 @@ public class UserEntity extends BaseEntity{
     @OneToMany(mappedBy="user")
     private Set<PasswordResetEntity> passwordReset;
 
+
     /**
      * Mat-data definition
      **/
@@ -48,4 +50,6 @@ public class UserEntity extends BaseEntity{
     @JoinColumn(name = "user_group_id", referencedColumnName = "id")
     private UserGroupEntity userGroup;
 
+    @Enumerated(EnumType.ORDINAL)
+    private UserType type;
 }

@@ -20,7 +20,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 @RequiredArgsConstructor
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class ResourceServerConfig {
 
     @Value("${spring.security.oauth2.resource-server.opaquetoken.introspection-uri}")
@@ -36,8 +36,9 @@ public class ResourceServerConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.cors(Customizer.withDefaults());
         http.csrf().disable()
-            .authorizeHttpRequests(auth -> auth.requestMatchers("/api/public/reset-password").permitAll()
-                    .anyRequest().authenticated())
+            .authorizeHttpRequests(auth -> auth.requestMatchers("/public/**").permitAll()
+                    .anyRequest().authenticated()
+            )
             .oauth2ResourceServer(oauth2 -> oauth2
                     .opaqueToken()
                     .introspectionUri(issuerUri)

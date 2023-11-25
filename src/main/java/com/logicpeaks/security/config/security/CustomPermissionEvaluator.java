@@ -7,7 +7,8 @@ import org.springframework.security.oauth2.server.resource.authentication.Bearer
 import java.io.Serializable;
 import java.util.Map;
 
-public class CustomPermissionEvaluator implements PermissionEvaluator {
+public class CustomPermissionEvaluator implements PermissionEvaluator
+{
 
 
 

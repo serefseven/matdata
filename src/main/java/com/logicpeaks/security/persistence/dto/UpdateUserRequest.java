@@ -1,6 +1,7 @@
 package com.logicpeaks.security.persistence.dto;
 
 import com.logicpeaks.security.enums.UserStatus;
+import com.logicpeaks.security.enums.UserType;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.Size;
 import lombok.Getter;
@@ -21,4 +22,5 @@ public class UpdateUserRequest {
     private String lastName;
     private UserStatus status;
     private Long userGroupId;
+    private UserType type;
 }

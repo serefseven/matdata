@@ -34,5 +34,6 @@ security-service:
 
 ## Mat-data definition
 mat-data:
+  url: http://mat-data.com
   application:
     url: http://apps.mat-data.com

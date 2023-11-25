@@ -36,5 +36,6 @@ security-service:
 
 ## Mat-data definition
 mat-data:
+  url: http://localhost:3011
   application:
     url: http://localhost:7000

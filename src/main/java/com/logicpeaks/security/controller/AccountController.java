@@ -1,14 +1,13 @@
 package com.logicpeaks.security.controller;
 
+import com.logicpeaks.security.persistence.dto.PasswordChangeRequest;
 import com.logicpeaks.security.persistence.dto.TenantCheckDto;
+import com.logicpeaks.security.persistence.dto.UpdateAccountRequest;
 import com.logicpeaks.security.persistence.dto.UserDtoApiResponse;
 import com.logicpeaks.security.service.AccountService;
 import com.logicpeaks.security.service.TenantService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,6 +21,15 @@ public class AccountController {
     @GetMapping
     public UserDtoApiResponse getAccountDetails() throws Exception {
         return accountService.getAccountDetails();
+    }
+
+    @PutMapping
+    public UserDtoApiResponse updateAccount(@RequestBody UpdateAccountRequest request) throws Exception {
+        return accountService.updateAccount(request);
+    }
+    @PutMapping("/change-password")
+    public UserDtoApiResponse changePassword(@RequestBody PasswordChangeRequest request) throws Exception {
+        return accountService.changePassword(request);
     }
 
     @GetMapping("/permissions")
