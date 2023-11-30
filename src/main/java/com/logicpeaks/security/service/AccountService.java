@@ -206,6 +206,7 @@ public class AccountService {
         passwordReset.setUser(userEntity);
         passwordReset.setToken(uuid.toString());
         passwordReset.setExpireDate(calendar.getTime());
+        passwordReset.setUsed(Boolean.FALSE);
         passwordResetRepository.save(passwordReset);
 
         emailService.sendPasswordResetEmail(userEntity.getEmail(),passwordReset.getToken());

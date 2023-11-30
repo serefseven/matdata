@@ -54,20 +54,25 @@ public class UserService {
         UserEntity userEntity;
 
 
-        userEntity = userRepository.findByEmailAndStatus(username, UserStatus.ACTIVE);
-        if (!Optional.ofNullable(userEntity).isPresent())
-            throw new UsernameNotFoundException(username);
-
-        int compare = userEntity.getUserGroup().getEndDate().compareTo(new Date());
-        if(!userEntity.getUserGroup().getActive() || compare == -1)
-            throw new UsernameNotFoundException(username);
-
-
-        return User
-                .withUsername(userEntity.getEmail())
-                .password(userEntity.getPassword())
-                .authorities("read")
-                .build();
+        if(loginByEmail){
+            userEntity = userRepository.findByEmailAndStatus(username, UserStatus.ACTIVE);
+            if(!Optional.ofNullable(userEntity).isPresent())
+                throw new UsernameNotFoundException(username);
+            return User
+                    .withUsername(userEntity.getEmail())
+                    .password(userEntity.getPassword())
+                    .authorities("read")
+                    .build();
+        } else {
+            userEntity = userRepository.findByUsernameAndStatus(username, UserStatus.ACTIVE);
+            if(!Optional.ofNullable(userEntity).isPresent())
+                throw new UsernameNotFoundException(username);
+            return User
+                    .withUsername(userEntity.getUsername())
+                    .password(userEntity.getPassword())
+                    .authorities("read")
+                    .build();
+        }
 
     }
 

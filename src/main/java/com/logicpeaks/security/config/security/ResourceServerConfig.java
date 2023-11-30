@@ -20,7 +20,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 @RequiredArgsConstructor
 @Configuration
-//@EnableWebSecurity
+@EnableWebSecurity
 public class ResourceServerConfig {
 
     @Value("${spring.security.oauth2.resource-server.opaquetoken.introspection-uri}")
