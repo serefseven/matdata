@@ -73,7 +73,8 @@ public class ApplicationController {
         String contentDisposition = response.getHeaders().get(HttpHeaders.CONTENT_DISPOSITION).get(0);
         HttpHeaders header = new HttpHeaders();
         header.add(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
-        header.add("X-File-Name", contentDisposition);
+        header.add("X-File-Name",
+                file.getOriginalFilename().split("\\.")[0]+"."+contentDisposition.split("=")[1]);
         ByteArrayResource resource = new ByteArrayResource(response.getBody());
         return ResponseEntity.ok()
                 .headers(header)

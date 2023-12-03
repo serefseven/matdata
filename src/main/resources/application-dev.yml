@@ -38,4 +38,4 @@ security-service:
 mat-data:
   url: http://localhost:3011
   application:
-    url: http://localhost:7000
+    url: http://localhost:5001

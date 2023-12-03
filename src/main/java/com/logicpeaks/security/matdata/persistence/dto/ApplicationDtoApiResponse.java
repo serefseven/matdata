@@ -14,4 +14,5 @@ public class ApplicationDtoApiResponse {
     private String acceptedExtensions;
     private String url;
     private Boolean active;
+    private Long templateId;
 }

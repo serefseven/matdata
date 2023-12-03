@@ -20,7 +20,7 @@ import static org.springframework.security.web.util.matcher.AntPathRequestMatche
 
 @RequiredArgsConstructor
 @Configuration
-@EnableWebSecurity
+//@EnableWebSecurity
 public class ResourceServerConfig {
 
     @Value("${spring.security.oauth2.resource-server.opaquetoken.introspection-uri}")
@@ -37,6 +37,7 @@ public class ResourceServerConfig {
         http.cors(Customizer.withDefaults());
         http.csrf().disable()
             .authorizeHttpRequests(auth -> auth.requestMatchers("/public/**").permitAll()
+                    .requestMatchers("/file/load/**").permitAll()
                     .anyRequest().authenticated()
             )
             .oauth2ResourceServer(oauth2 -> oauth2
@@ -57,6 +58,7 @@ public class ResourceServerConfig {
         configuration.setAllowedOrigins(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("*"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
+        configuration.setExposedHeaders(Arrays.asList("*"));
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

@@ -23,4 +23,5 @@ public class UpsertApplicationRequest {
     @NotBlank(message = "URL must not be blank.")
     private String url;
     private Boolean active;
+    private Long templateId;
 }
