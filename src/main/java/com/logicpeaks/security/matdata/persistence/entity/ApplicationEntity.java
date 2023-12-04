@@ -27,6 +27,8 @@ public class ApplicationEntity extends BaseEntity {
     private String url;
     @Column(name = "template_id")
     private Long templateId;
+    @Column(name = "logo_id")
+    private Long logoId;
     @Column(name = "active")
     private Boolean active;
     @ManyToMany(mappedBy = "applications")

@@ -24,4 +24,5 @@ public class UpsertApplicationRequest {
     private String url;
     private Boolean active;
     private Long templateId;
+    private Long logoId;
 }
