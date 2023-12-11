@@ -82,7 +82,7 @@ public class UserService {
                                             Optional<String> sortField) {
 
         Sort sort = Sort.by(Sort.Direction.valueOf(sortDirection.orElse("DESC")), sortField.orElse("id"));
-        Pageable pageable = PageRequest.of(page, size, sort);
+        Pageable pageable = PageRequest.of(page, Integer.MAX_VALUE, sort);
 
         Page<UserEntity> userList = userRepository.findAll(pageable);
         return userList.stream().map(r -> modelMapper.map(r, UserDtoApiResponse.class)).collect(Collectors.toList());
