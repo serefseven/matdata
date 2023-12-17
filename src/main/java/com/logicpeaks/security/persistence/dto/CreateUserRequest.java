@@ -16,10 +16,10 @@ public class CreateUserRequest {
     @NotBlank(message = "E-mail boş bırakılamaz.")
     private String email;
 
-    @Size(min = 6, message = "Parola en az 6 karakterden oluşmalıdır.")
-    @NotBlank(message = "Parola boş bırakılamaz.")
+    //@Size(min = 6, message = "Parola en az 6 karakterden oluşmalıdır.")
+    //@NotBlank(message = "Parola boş bırakılamaz.")
     private String password;
-    @NotBlank(message = "Parola Doğrulama boş bırakılamaz.")
+    //@NotBlank(message = "Parola Doğrulama boş bırakılamaz.")
     private String confirmPassword;
     @NotBlank(message = "Ad boş bırakılamaz.")
     private String firstName;
@@ -29,5 +29,6 @@ public class CreateUserRequest {
     private UserStatus status;
     private Long userGroupId;
     private UserType type;
+    private Boolean sendEmail;
 
 }

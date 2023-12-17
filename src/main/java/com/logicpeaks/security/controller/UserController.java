@@ -4,12 +4,15 @@ import com.logicpeaks.security.exception.ArgumentNotValidException;
 import com.logicpeaks.security.exception.DataNotFoundException;
 import com.logicpeaks.security.persistence.dto.*;
 import com.logicpeaks.security.service.UserService;
+import freemarker.template.TemplateException;
+import jakarta.mail.MessagingException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,7 +41,7 @@ public class UserController {
     @PostMapping
     // TODO @PreAuthorize("hasAuthority('SECURITY.USER.ADD')")
     public ResponseEntity<UserDtoApiResponse> createUser(@Valid @RequestBody CreateUserRequest createUserRequest)
-            throws ArgumentNotValidException {
+            throws ArgumentNotValidException, TemplateException, MessagingException, IOException {
         UserDtoApiResponse userDtoApiResponse = userService.create(createUserRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(userDtoApiResponse);
     }

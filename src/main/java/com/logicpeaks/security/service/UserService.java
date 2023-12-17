@@ -1,8 +1,10 @@
 package com.logicpeaks.security.service;
 
+import com.logicpeaks.security.enums.UserPasswordSettingTypes;
 import com.logicpeaks.security.exception.DataNotFoundException;
 import com.logicpeaks.security.exception.ArgumentNotValidException;
 import com.logicpeaks.security.enums.UserStatus;
+import com.logicpeaks.security.helper.PasswordGenerator;
 import com.logicpeaks.security.matdata.persistence.entity.UserGroupEntity;
 import com.logicpeaks.security.matdata.persistence.repository.UserGroupRepository;
 import com.logicpeaks.security.persistence.dto.*;
@@ -10,6 +12,8 @@ import com.logicpeaks.security.persistence.entity.RoleEntity;
 import com.logicpeaks.security.persistence.entity.UserEntity;
 import com.logicpeaks.security.persistence.repository.RoleRepository;
 import com.logicpeaks.security.persistence.repository.UserRepository;
+import freemarker.template.TemplateException;
+import jakarta.mail.MessagingException;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.modelmapper.ModelMapper;
@@ -26,6 +30,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -48,6 +53,8 @@ public class UserService {
     private RoleRepository roleRepository;
     @NonNull
     private final ModelMapper modelMapper;
+    @NonNull
+    private final EmailService emailService;
 
     public UserDetails loadUserByUsername(String username)
             throws UsernameNotFoundException {
@@ -103,8 +110,8 @@ public class UserService {
     }
 
     public UserDtoApiResponse create(CreateUserRequest request)
-            throws ArgumentNotValidException {
-
+            throws ArgumentNotValidException, TemplateException, MessagingException, IOException {
+        String rawPassword = null;
         if (!request.getPassword().equals(request.getConfirmPassword())) {
             log.warn(String.format("User update unsuccessful, password missmatch error."));
             throw new ArgumentNotValidException("Parola ve parola doğrulama alanları eşleşmiyor.");
@@ -125,11 +132,28 @@ public class UserService {
         }
 
         UserEntity userEntity = modelMapper.map(request, UserEntity.class);
+
+        if(request.getPasswordSettingType().equals(UserPasswordSettingTypes.SEND_EMAIL_RANDOM_PASSWORD)) {
+            PasswordGenerator passwordGenerator = new PasswordGenerator.PasswordGeneratorBuilder()
+                    .useDigits(true)
+                    .useLower(true)
+                    .useUpper(true)
+                    .usePunctuation(false)
+                    .build();
+            String password = passwordGenerator.generate(6);
+            userEntity.setPassword(password);
+        }
+
+        rawPassword = userEntity.getPassword();
         userEntity.setUserGroup(userGroupEntity);
         BCryptPasswordEncoder bCrypt = new BCryptPasswordEncoder();
         userEntity.setPassword(bCrypt.encode(userEntity.getPassword()));
-        userEntity = userRepository.save(userEntity);
 
+
+        if(request.getSendEmail() || request.getPasswordSettingType().equals(UserPasswordSettingTypes.CHOOSE_YOUR_OWN)){
+            emailService.sendWelcomeEmail(userEntity.getEmail(),userEntity.getFirstName(),rawPassword);
+        }
+        userEntity = userRepository.save(userEntity);
         log.info(String.format("User create successful, data : %s", userEntity));
         return modelMapper.map(userEntity, UserDtoApiResponse.class);
     }

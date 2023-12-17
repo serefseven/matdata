@@ -39,6 +39,26 @@ public class EmailService {
     @Autowired
     private MessageSource messageSource;
 
+    public void sendWelcomeEmail(String to, String name, String password) throws TemplateException, IOException, MessagingException {
+        Locale locale = LocaleContextHolder.getLocale();
+
+        Map<String, Object> templateModel = new HashMap();
+        templateModel.put("welcome",messageSource.getMessage("EMAIL.WELCOME.WELCOME", new Object[]{name}, locale));
+        templateModel.put("message1",messageSource.getMessage("EMAIL.WELCOME.MESSAGE_1", null, locale));
+        templateModel.put("username",messageSource.getMessage("EMAIL.WELCOME.USERNAME", new String[]{to}, locale));
+        templateModel.put("password",messageSource.getMessage("EMAIL.WELCOME.PASSWORD", new String[]{password}, locale));
+        templateModel.put("message2",messageSource.getMessage("EMAIL.WELCOME.MESSAGE_2", null, locale));
+        templateModel.put("bestRegards",messageSource.getMessage("EMAIL.WELCOME.BEST_REGARDS", null, locale));
+        templateModel.put("link",matdataApplicationUrl);
+
+        Template freemarkerTemplate = freemarkerConfigurer
+                .getConfiguration()
+                .getTemplate("welcome.ftl");
+        String htmlBody = FreeMarkerTemplateUtils.processTemplateIntoString(freemarkerTemplate, templateModel);
+        String subject = messageSource.getMessage("EMAIL.WELCOME.SUBJECT", null, locale);
+        sendSimpleMessage(to,subject,htmlBody);
+    }
+
     public void sendPasswordResetEmail(String to, String token) throws TemplateException, IOException, MessagingException {
         Locale locale = LocaleContextHolder.getLocale();
 
