@@ -80,7 +80,7 @@ public class FileController {
         return ResponseEntity.ok()
                 .headers(header)
                 .contentLength(fileEntity.getData().length)
-                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .contentType(MediaType.valueOf(fileEntity.getType()))
                 .body(resource);
     }
 
